@@ -9,6 +9,7 @@ using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace DM_AP_POC.TCs
@@ -93,8 +94,6 @@ namespace DM_AP_POC.TCs
 		{
 			EdgeOptions options = new EdgeOptions();
 			options.PageLoadStrategy = PageLoadStrategy.Normal;
-			//options.AddUserProfilePreference("profile.default.content_settings.popups", 0);
-			//options.AddArgument("--disable-print-preview");
 			return options;
 		}
 
@@ -102,44 +101,46 @@ namespace DM_AP_POC.TCs
 		{
 			InternetExplorerOptions options = new InternetExplorerOptions();
 			options.PageLoadStrategy = PageLoadStrategy.Normal;
-			//options.AddUserProfilePreference("profile.default.content_settings.popups", 0);
-			//options.AddArgument("--disable-print-preview");
 			return options;
 		}
 
 		public static void initializeDriver()
 		{
-			if (BrowserName.ToLower().Equals("chrome"))
+			switch (browserName.ToLower())
 			{
-				System.Environment.SetEnvironmentVariable("webdriver.chrome.driver", Environment.CurrentDirectory + "\\chromedriver.exe");
-				Driver = new ChromeDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), ChromeOption(), TimeSpan.FromSeconds(90));
-				//Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
-				Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-				//Driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(5);
-			}
-			else if (BrowserName.ToLower().Equals("firefox"))
-			{
-				System.Environment.SetEnvironmentVariable("webdriver.gecko.driver", Environment.CurrentDirectory + "\\geckodriver.exe");
-				Driver = new FirefoxDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), FirefoxOption(), TimeSpan.FromSeconds(90));
-			}
-			else if (BrowserName.ToLower().Equals("ie"))
-			{
-				System.Environment.SetEnvironmentVariable("webdriver.ie.driver", Environment.CurrentDirectory + "\\IEDriverServer.exe");
-				Driver = new InternetExplorerDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), IEOptions(), TimeSpan.FromSeconds(90));
-			}
-			else if (BrowserName.ToLower().Equals("edge"))
-			{
-				System.Environment.SetEnvironmentVariable("webdriver.edge.drive", Environment.CurrentDirectory + "\\MicrosoftWebDriver.exe");
-				Driver = new EdgeDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), EDGEOptions(), TimeSpan.FromSeconds(90));
-			}
-			else if (BrowserName.ToLower().Equals("chrome-headless"))
-			{
-				System.Environment.SetEnvironmentVariable("webdriver.chrome.driver", Environment.CurrentDirectory + "\\chromedriver.exe");
-				ChromeOptions options = new ChromeOptions();
-				options.AddArgument("--headless");
-				options.AddArgument("--window-size=1920,1080");
-				Driver = new ChromeDriver(options);
-			}
+				case "chrome":
+					System.Environment.SetEnvironmentVariable("webdriver.chrome.driver", Environment.CurrentDirectory + "\\chromedriver.exe");
+					Driver = new ChromeDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), ChromeOption(), TimeSpan.FromSeconds(90));
+					//Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
+					Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+					break;
+
+				case "firefox":
+					System.Environment.SetEnvironmentVariable("webdriver.gecko.driver", Environment.CurrentDirectory + "\\geckodriver.exe");
+					Driver = new FirefoxDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), FirefoxOption(), TimeSpan.FromSeconds(90));
+					break;
+
+				case "ie":
+					System.Environment.SetEnvironmentVariable("webdriver.ie.driver", Environment.CurrentDirectory + "\\IEDriverServer.exe");
+					Driver = new InternetExplorerDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), IEOptions(), TimeSpan.FromSeconds(90));
+					break;
+
+				case "edge":
+					System.Environment.SetEnvironmentVariable("webdriver.edge.drive", Environment.CurrentDirectory + "\\MicrosoftWebDriver.exe");
+					Driver = new EdgeDriver(new System.Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath.Replace("%20", " ").TrimEnd("DM_AP_POC.DLL".ToCharArray()), EDGEOptions(), TimeSpan.FromSeconds(90));
+					break;
+
+				case "chrome-headless":
+					System.Environment.SetEnvironmentVariable("webdriver.chrome.driver", Environment.CurrentDirectory + "\\chromedriver.exe");
+					ChromeOptions options = new ChromeOptions();
+					options.AddArgument("--headless");
+					options.AddArgument("--window-size=1920,1080");
+					Driver = new ChromeDriver(options);
+					break;
+
+				default:
+					break;
+			}			
 		}
 
 		[OneTimeSetUp]
@@ -161,7 +162,55 @@ namespace DM_AP_POC.TCs
 			_extent = new ExtentReports();
 			_extent.AttachReporter(htmlReporter);
 		}
+		[TearDown, Order(1)]
+		public static void ScreenshotOnFailure()
+		{
+			if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
+			{
+				string ScreenShotPath = AppDomain.CurrentDomain.BaseDirectory;
+				int PathLength = ScreenShotPath.IndexOf("\\bin");
+				ScreenShotPath = ScreenShotPath.Substring(0, PathLength) + "\\TCs\\Screenshots\\" + TestContext.CurrentContext.Test.MethodName + DateTime.Now.ToString("HHmmss") + ".png";
+				try
+				{
+					Screenshot ss = ((ITakesScreenshot)Driver).GetScreenshot();
+					ss.SaveAsFile(ScreenShotPath);
+				}
+				catch (Exception e)
+				{
 
+					throw new IOException(e.Message);
+				}
+			}
+		}
+
+		[TearDown, Order(2)]
+		public void AfterTest()
+		{
+			var status = TestContext.CurrentContext.Result.Outcome.Status;
+			var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
+					? ""
+					: string.Format("{0}", TestContext.CurrentContext.Result.StackTrace);
+			Status logstatus;
+
+			switch (status)
+			{
+				case TestStatus.Failed:
+					logstatus = Status.Fail;
+					break;
+				case TestStatus.Inconclusive:
+					logstatus = Status.Warning;
+					break;
+				case TestStatus.Skipped:
+					logstatus = Status.Skip;
+					break;
+				default:
+					logstatus = Status.Pass;
+					break;
+			}
+
+			TestClass.test.Log(logstatus, "Test ended with " + logstatus + stacktrace);
+			TestClass.extent.Flush();
+		}
 		[OneTimeTearDown]
 		public static void StopDriver()
 		{

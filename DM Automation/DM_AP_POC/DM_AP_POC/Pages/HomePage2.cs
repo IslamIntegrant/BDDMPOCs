@@ -34,26 +34,14 @@ namespace DM_AP_POC.Pages
 
 		#region Actions
 
-		public void WaitForDataLoad()
-		{
-			WaitForPageToBeReady();
-		}
-
 		public void ImpersonateIDN(string IdnName)
 		{
-			try
-			{
+			
 				WaitForElementToExistByID(actingAsMenu);
 				ClickButton(actingAsMenu);
 				ClearText(actingAsMenu);
 				actingAsMenu.SendKeys(IdnName);				
-			}
-			catch (Exception e)
-			{
-
-				Console.WriteLine("Failed to impersonate the health system: " + e.Message);
-				throw e;
-			}
+			
 		}
 
 		public void openInteroperabilityProjectsPage() 

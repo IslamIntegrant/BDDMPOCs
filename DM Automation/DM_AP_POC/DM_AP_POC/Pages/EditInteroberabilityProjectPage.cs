@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using DM_AP_POC.TCs;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
 using System;
@@ -107,6 +108,9 @@ namespace DM_AP_POC.Pages
 
 		[FindsBy(How = How.Id, Using = "listItemnewIVUnits0")]
 		IWebElement mcgEmrDataItemUnit;
+
+
+		public IWebElement routeDDlItem(string item) => Driver.FindElement(By.XPath($"//li/a[@title='{item}']"));
 		#endregion
 
 		#endregion
@@ -118,6 +122,7 @@ namespace DM_AP_POC.Pages
 
 		public EditInteroberabilityProjectPage(IWebDriver driver) : base(driver)
 		{
+			
 		}
 
 		#region Actions
@@ -132,16 +137,19 @@ namespace DM_AP_POC.Pages
 		
 		public void GotoAlignmentTab()
 		{
+		
 			try
 			{
-				alignmentTab.Click();
+				alignmentTab.Click();				
 				
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error occured when opening alignment tab header: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error occured when opening alignment tab header: " + e.Message);
+				TestClass.test.Fail(e.Message);
 				throw e;
+				
 			}
 		}
 
@@ -152,25 +160,27 @@ namespace DM_AP_POC.Pages
 		{	
 			
 				// Getting a list of all desired elements in the displayed page
-				WaitForElementToExistByCSS("#alignmentProjectBDAlignItems > div > div.ui-table-wrapper.ng-star-inserted > table");
-				IReadOnlyCollection<IWebElement> alignmentPairsElements = alignItemsTable.FindElements(By.XPath(elementsXPath));
+			WaitForElementToExistByCSS("#alignmentProjectBDAlignItems > div > div.ui-table-wrapper.ng-star-inserted > table");
+			IReadOnlyCollection<IWebElement> alignmentPairsElements = alignItemsTable.FindElements(By.XPath(elementsXPath));
 
 				// Scrolling to the desired pair
-				ScrollToVisibilityOfElement(alignmentPairsElements.ElementAt(pairIndex));
-				Console.WriteLine("Scrolled the desired pair into the center of the screen");
+			ScrollToVisibilityOfElement(alignmentPairsElements.ElementAt(pairIndex));
+			TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Scrolled the desired pair into the center of the screen");
 
 			try
 			{
 				// Clicking on the desired pair element
 				WaitForElementToBeClickable(GetAbsoluteXPath(alignmentPairsElements.ElementAt(pairIndex)));
-			}
-			catch (Exception)
-			{
-
-				
-			}
 				alignmentPairsElements.ElementAt(pairIndex).Click();
-				Console.WriteLine("Successfully clicked in the desired pair element");
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully clicked in the desired pair element");
+			}
+			catch (Exception e)
+			{
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error, "Error occured while waiting for an element to be clickable");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
+				throw e;
+			}
+			
 		}
 
 		public void RandomlySelectManualAlignPairItems(bool canSelectDers, bool canSelectEMR) 
@@ -183,12 +193,13 @@ namespace DM_AP_POC.Pages
 					int DersDataItemsCount = Driver.FindElements(By.XPath(manualAlignDersDataItemRadiosXPath)).Count;
 					SetSelections(generatRandomNumber(0, DersDataItemsCount -2), manualAlignDersDataItemRadiosXPath);  /*-2 Here to avoid selecting "Create new concentration option as it is out of scope of our test cases" and adjust the handling of pair index*/
 					WaitForPageToBeReady();
-					Console.WriteLine("Successfully selected random DERS Data item");
+					TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully selected random DERS Data item");
 				}
 				catch (Exception e)
 				{
 
-					Console.WriteLine("Error in selecting random DERS Data item: " + e.Message);
+					TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in selecting random DERS Data item: " + e.Message);
+					TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 					throw e;
 				}
 			}
@@ -202,24 +213,25 @@ namespace DM_AP_POC.Pages
 					{
 						SetSelections(generatRandomNumber(0, EmrDataItemsCount - 1), manualAlignEmrDataItemsRadiosXPath); // -1 Here to adjust the handling of the pair index
 						WaitForPageToBeReady();
-						Console.WriteLine("Successfully selected random EMR Item"); 
+						TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully selected random EMR Item"); 
 					}
 					else
 					{
-						Console.WriteLine("No EMR Data items found.");
+						TestClass.test.Log(AventStack.ExtentReports.Status.Info,"No EMR Data items found.");
 						return;
 					}
 				}
 				catch (Exception e)
 				{
 
-					Console.WriteLine("Error in selecting random EMR Item: " + e.Message);
+					TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in selecting random EMR Item");
+					TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 					throw e;
 				}
 			}
 		}
 
-		public void createNewEmrItem() 
+		public void createNewEmrItem(string itemRoute) 
 		{
 			WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
 			ClickButton(manualAlignModalCreateEmrRadioButton);
@@ -227,12 +239,13 @@ namespace DM_AP_POC.Pages
 			{
 				ivTypeDropdown.Click();
 				ivTypeDropdown.SendKeys("Primary");
-				Console.WriteLine("Selected primary menu item");
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Selected primary menu item");
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error in selecting primary menu item: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in selecting primary menu item");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 				throw e;
 			}
 			newIVNameTextBox.SendKeys(generatRandomNumber(1, 999).ToString());
@@ -240,13 +253,14 @@ namespace DM_AP_POC.Pages
 			try
 			{
 				newIVUnitsDropDown.Click();
-				newIVUnitsDropDown.Click();
-				Console.WriteLine("Successfully selected primary component units");
+				routeDDlItem(itemRoute).Click();
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully selected primary component units");
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error in selecting primary component units: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in selecting primary component units");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 				throw e;
 			}
 			addIVComponentButton.Click();
@@ -254,12 +268,13 @@ namespace DM_AP_POC.Pages
 			{
 				ivTypeDropdown.Click();
 				ivTypeDropdown.SendKeys("Diluent");
-				Console.WriteLine("Selected Diluent menu item");
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Selected Diluent menu item");
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error in selecting Diluent menu item: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in selecting Diluent menu item");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 				throw e;
 			}
 			newIVNameTextBox.SendKeys(generatRandomNumber(1, 999).ToString());
@@ -269,12 +284,13 @@ namespace DM_AP_POC.Pages
 			{
 				newIVRouteDropdown.Click();
 				newIVRouteDropdown.SendKeys("push iv");
-				Console.WriteLine("Successfully selected new EMR Data item route");
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully selected new EMR Data item route");
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error selecting new EMR Data item route: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error selecting new EMR Data item route");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 				throw e;
 			}
 		}
@@ -288,12 +304,13 @@ namespace DM_AP_POC.Pages
 				dersDescriptionTextBox.SendKeys("Test" + generatRandomNumber(1, 999).ToString());
 				dersAmountTextBox.SendKeys(generatRandomNumber(1, 999).ToString());
 				DiluentVolumeTextBox.SendKeys(generatRandomNumber(1, 999).ToString());
-				Console.WriteLine("Successfully entered new DERS item text data");
+				TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Successfully entered new DERS item text data");
 			}
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error in entering new DERS item text data: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error in entering new DERS item text data");
+				TestClass.test.Fail(e.Message + ", " + e.StackTrace);
 				throw e;
 			}
 		}
@@ -314,7 +331,7 @@ namespace DM_AP_POC.Pages
 		}
 
 		public void ApplyExcludeActionForSelectedPair(int pairIndex)
-		{
+		{			
 			// Sending the XPath of actions drop down menus to the SetAction method 
 			SetSelections(pairIndex, "//table/tbody/tr/td//action-dropdown//input[@type='text']");
 
@@ -374,7 +391,7 @@ namespace DM_AP_POC.Pages
 			RandomlySelectManualAlignPairItems(true, false);
 
 			// Creating new EMR Data item
-			createNewEmrItem();
+			createNewEmrItem("gram");
 
 			// Saving
 			ClickButton(manualAlignModalSaveButton);
@@ -481,14 +498,7 @@ namespace DM_AP_POC.Pages
 		// This method is used to verify that the aligned pairs aligned in the test cases are sent to the acceptance tab
 		public bool VerifyExistenceOfPairWithAction(string pairAction) 
 		{
-			if (GetPairWithAction(pairAction) != null)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return GetPairWithAction(pairAction) != null;
 		}
 		#endregion
 	}

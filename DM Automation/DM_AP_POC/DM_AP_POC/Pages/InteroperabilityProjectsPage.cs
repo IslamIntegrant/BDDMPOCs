@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using DM_AP_POC.TCs;
+using OpenQA.Selenium;
 using SeleniumExtras.PageObjects;
 using System;
 
@@ -29,11 +30,7 @@ namespace DM_AP_POC.Pages
 		#endregion
 
 		#region Actions
-		public void WaitForDataLoad()
-		{
-			WaitForPageToBeReady();
-		}
-
+		
 		public void searchForInteroberabilityProject(string projectName) 
 		{
 			try
@@ -44,25 +41,18 @@ namespace DM_AP_POC.Pages
 			catch (Exception e)
 			{
 
-				Console.WriteLine("Error occured when searching for the interoperability project: " + e.Message);
+				TestClass.test.Log(AventStack.ExtentReports.Status.Error,"Error occured when searching for the interoperability project: " + e.Message);
+				TestClass.test.Fail(e.Message);
 				throw e;
 			}
 		}
 
 		public void openInteroperabilityProject() 
 		{
-			try
-			{
+			
 				interoberabilityProjectGridRow.Click();
 				ClickButton(openInteroberabilityProjectButton);
-				WaitForPageToBeReady();				
-			}
-			catch (Exception e)
-			{
-
-				Console.WriteLine("Error occured when opening interoperability project: " + e.Message);
-				throw e;
-			}
+				WaitForPageToBeReady();	
 		}
 
 		#endregion

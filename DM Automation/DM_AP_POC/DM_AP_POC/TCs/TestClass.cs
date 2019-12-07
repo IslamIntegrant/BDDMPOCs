@@ -3,10 +3,7 @@ using AventStack.ExtentReports.Reporter;
 using DM_AP_POC.Data;
 using DM_AP_POC.Pages;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
-using OpenQA.Selenium;
 using System;
-using System.IO;
 
 namespace DM_AP_POC.TCs
 {
@@ -19,9 +16,9 @@ namespace DM_AP_POC.TCs
 		static HomePage2 homePage2;
 		static InteroperabilityProjectsPage projectsPage;
 		EditInteroberabilityProjectPage editProjectPageObject;
-		private ExtentReports extent;
-		ExtentHtmlReporter htmlReporter;
-		ExtentTest test;
+		public static ExtentReports extent;
+		public static ExtentHtmlReporter htmlReporter;
+		public static ExtentTest test;
 		int itemsPairIndex;
 		public bool isSetupCompleted = false;  // This variable is used to indecate whatever the user is logged in + the IDN is impersonated + The interoperability project is opened on the alignment tab or not
 
@@ -43,10 +40,7 @@ namespace DM_AP_POC.TCs
 		
 		public void Setup()
 		{
-			try
-			{
-				test = extent.CreateTest("Setup");
-
+			
 				// Initializing objects of the pages required for the login process
 				homePage = new HomePage(Driver);
 				loginPage = new LoginPage(Driver);
@@ -63,18 +57,18 @@ namespace DM_AP_POC.TCs
 				
 				// Impersonating the health system
 				homePage2.ImpersonateIDN(sharedData.idnName);
-				homePage2.WaitForDataLoad();
+				homePage2.WaitForPageToBeReady();
 				test.Log(Status.Info, "Health system impersonated");
 
 				// Opening the desired interoperability project
 				homePage2.openInteroperabilityProjectsPage();
-				homePage2.WaitForDataLoad();
+				homePage2.WaitForPageToBeReady();
 
 				test.Log(Status.Info, "Navigated to interoperability projects page");
 
 				// Searching for the desired interoperability project
 				projectsPage.searchForInteroberabilityProject(sharedData.cernerInteroperabilityProjectName);
-				projectsPage.WaitForDataLoad();
+				projectsPage.WaitForPageToBeReady();
 				test.Log(Status.Info, "Interoperability project search completed successfully");
 
 				// Opening the desured interoperability project
@@ -91,13 +85,8 @@ namespace DM_AP_POC.TCs
 				
 				// Setting this flags with true to let all subsequent TCs know that the alignment tab is already opened
 				isSetupCompleted = true;
-			}
-			catch (Exception e)
-			{
-
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail("An error occured while opening the alignment tab: " + e.Message + " " + e.Source);
-			}
+						
+			
 		}		
 		#endregion
 
@@ -117,9 +106,7 @@ namespace DM_AP_POC.TCs
 		#region TestCases;
 		[TestCase(TestName = "AutomaticallyAlignItemsWithActionUpdate"), Order(1)]
 		public void AutomaticallyAlignItemsWithActionUpdate() 
-		{				
-			try
-			{
+		{	
 				if (isSetupCompleted == false)
 				{
 					// Calling this method logs in to the system + impersonates the IDN + opens the interoperability projects page + 
@@ -141,25 +128,17 @@ namespace DM_AP_POC.TCs
 				editProjectPageObject.ApplyUpdateActionForSelectedPair(itemsPairIndex);
 
 				editProjectPageObject.gotoAcceptanceTab();
-				editProjectPageObject.SetPaginationToMaximumLength();
+				editProjectPageObject.SetPaginationToMaxLength();
 
 				// Assert that the item is sent to the acceptance tab
 				Assert.That(editProjectPageObject.VerifyExistenceOfPairWithAction("Update"), "The item is not sent to the acceptance tab");
-			}
-			catch (Exception e)
-			{
-
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail();
-			}
+			
 		}
 
 		[TestCase(TestName = "AutomaticallyAlignItemsWithActionExclude"), Order(2)]
 		public void AutomaticallyAlignItemsWithActionExclude() 
 		{			
-			try
-			{
-				if (isSetupCompleted == false)
+			if (isSetupCompleted == false)
 				{
 					// Calling this method logs in to the system + impersonates the IDN + opens the interoperability projects page + 
 					// Opens the desired interoperability project and finally opens the alignment tab for that project
@@ -181,21 +160,13 @@ namespace DM_AP_POC.TCs
 				editProjectPageObject.SetPaginationToMaximumLength();
 				// Assert that the item is sent to the acceptance tab
 				Assert.That(editProjectPageObject.VerifyExistenceOfPairWithAction("Exclude"), "The item is not sent to the acceptance tab");
-			}
-			catch (Exception e)
-			{
-
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail();
-			}
+			
 		}
 
 		[TestCase(TestName = "ManualAlignWithActionAlign"), Order(3)]
 		public void ManualAlignWithActionAlign() 
 		{			
-			try
-			{
-				if (isSetupCompleted == false)
+			if (isSetupCompleted == false)
 				{
 					// Calling this method logs in to the system + impersonates the IDN + opens the interoperability projects page + 
 					// Opens the desired interoperability project and finally opens the alignment tab for that project
@@ -215,21 +186,12 @@ namespace DM_AP_POC.TCs
 				// Assert that the item is sent to the acceptance tab
 				Assert.That(editProjectPageObject.VerifyExistenceOfPairWithAction("Align"), "The item is not sent to the acceptance tab");
 
-			}
-			catch (Exception e)
-			{
-
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail();
-			}
 		}
 
 		[TestCase(TestName = "ManualAlignWithActionUpdateWithNewEMR"), Order(4)]
 		public void ApplyManulAlignWithUpdateActionWithNewEMR()
-		{			
-			try
-			{
-				if (isSetupCompleted == false)
+		{		
+			if (isSetupCompleted == false)
 				{
 					// Calling this method logs in to the system + impersonates the IDN + opens the interoperability projects page + 
 					// Opens the desired interoperability project and finally opens the alignment tab for that project
@@ -248,19 +210,12 @@ namespace DM_AP_POC.TCs
 
 				// Assert that the item is sent to the acceptance tab
 				Assert.That(editProjectPageObject.VerifyExistenceOfPairWithAction("Update"), "The item is not sent to the acceptance tab");
-			}
-			catch (Exception e)
-			{
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail();
-			}
+			
 		}
 
 		[TestCase(TestName = "ManualAlignWithActionUpdateWithNewDERS"), Order(5)]
 		public void ApplyManulAlignWithUpdateActionWithNewDERS()
-		{			
-			try
-			{
+		{
 				if (isSetupCompleted == false)
 				{
 					// Calling this method logs in to the system + impersonates the IDN + opens the interoperability projects page + 
@@ -280,64 +235,10 @@ namespace DM_AP_POC.TCs
 
 				// Assert that the item is sent to the acceptance tab
 				Assert.That(editProjectPageObject.VerifyExistenceOfPairWithAction("Update"), "The item is not sent to the acceptance tab");
-			}
-			catch (Exception e)
-			{
-
-				test.Fail(e.Message + " " + e.StackTrace);
-				Assert.Fail();
-			}
+			
 		}
 
-		[TearDown, Order(1)]
-		public static void ScreenshotOnFailure()
-		{
-			if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
-			{
-				string ScreenShotPath = AppDomain.CurrentDomain.BaseDirectory;
-				int PathLength = ScreenShotPath.IndexOf("\\bin");
-				ScreenShotPath = ScreenShotPath.Substring(0, PathLength) + "\\TCs\\Screenshots\\" + TestContext.CurrentContext.Test.MethodName + DateTime.Now.ToString("HHmmss") + ".png";
-				try
-				{
-					Screenshot ss = ((ITakesScreenshot)Driver).GetScreenshot();
-					ss.SaveAsFile(ScreenShotPath);
-				}
-				catch (Exception e)
-				{
-
-					throw new IOException(e.Message);
-				}
-			}
-		}
-
-		[TearDown, Order(2)]
-		public void AfterTest()
-		{
-			var status = TestContext.CurrentContext.Result.Outcome.Status;
-			var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
-					? ""
-					: string.Format("{0}", TestContext.CurrentContext.Result.StackTrace);
-			Status logstatus;
-
-			switch (status)
-			{
-				case TestStatus.Failed:
-					logstatus = Status.Fail;
-					break;
-				case TestStatus.Inconclusive:
-					logstatus = Status.Warning;
-					break;
-				case TestStatus.Skipped:
-					logstatus = Status.Skip;
-					break;
-				default:
-					logstatus = Status.Pass;
-					break;
-			}
-
-			test.Log(logstatus, "Test ended with " + logstatus + stacktrace);
-			extent.Flush();
-		}	
+			
 		#endregion
 	}
 }

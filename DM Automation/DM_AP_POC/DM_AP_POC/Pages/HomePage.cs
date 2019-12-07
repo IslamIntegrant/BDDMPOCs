@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using DM_AP_POC.TCs;
+using OpenQA.Selenium;
 using SeleniumExtras.PageObjects;
 using System;
 
@@ -19,7 +20,7 @@ namespace DM_AP_POC.Pages
 		public void ClickSignInButton() 
 		{
 			ClickButton(signInButton);
-			Console.WriteLine("Clicking the sign in button");
+			TestClass.test.Log(AventStack.ExtentReports.Status.Info,"Clicked the sign in button");
 		}
 		#endregion
 	}

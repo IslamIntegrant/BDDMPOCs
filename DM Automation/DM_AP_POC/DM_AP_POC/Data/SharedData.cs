@@ -18,7 +18,7 @@ namespace DM_AP_POC.Data
 
 		#region Test accounts
 		public string superUserUserName = "Islam.Alhamed@bd.com";
-		public string superUserPassword = "Welcome@4";
+		public string superUserPassword = "Carefusion@7";
 		#endregion
 
 		#region Test data

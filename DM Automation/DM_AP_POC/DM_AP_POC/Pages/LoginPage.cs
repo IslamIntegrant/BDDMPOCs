@@ -24,20 +24,12 @@ namespace DM_AP_POC.Pages
 		#region Actions
 		public void Login(string userName, string password)
 		{
-			try
-			{
+			
 				SetTextElelmentText(userNameTextBox, userName);
 				SetTextElelmentText(passwordTextBox, password);
 				ClickButton(signinButton);
 				WaitForPageToBeReady();
-			}
-			catch (Exception e)
-			{
-
-				Console.WriteLine("Failed to login: " + e.Message);
-				throw e;
-			}
-			
+						
 		}
 		#endregion
 	}
