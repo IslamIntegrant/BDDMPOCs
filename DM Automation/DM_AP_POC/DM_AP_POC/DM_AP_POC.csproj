@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\SharedData.cs" />
+    <Compile Include="HelperClasses\HelperClass.cs" />
     <Compile Include="Pages\EditInteroberabilityProjectPage.cs" />
     <Compile Include="Pages\HomePage.cs" />
     <Compile Include="Pages\HomePage2.cs" />
@@ -125,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Data\DataFiles\UserCredentials.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -133,15 +135,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\DataClasses\" />
-    <Folder Include="Data\DataFiles\" />
     <Folder Include="Data\DB\" />
-    <Folder Include="HelperClasses\" />
-    <Folder Include="JS\" />
     <Folder Include="TCs\Screenshots\" />
     <Folder Include="TCs\TestReport\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Drivers\chromedriver.exe" />
+    <Content Include="JS\GetApsoultePath.JS" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -1,9 +1,13 @@
 ﻿using AventStack.ExtentReports;
 using AventStack.ExtentReports.Reporter;
 using DM_AP_POC.Data;
+using DM_AP_POC.HelperClasses;
 using DM_AP_POC.Pages;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.IO;
+using System.Text;
 
 namespace DM_AP_POC.TCs
 {
@@ -45,14 +49,16 @@ namespace DM_AP_POC.TCs
 				homePage = new HomePage(Driver);
 				loginPage = new LoginPage(Driver);
 				sharedData = new SharedData();
-
+				string FilePath = File.ReadAllText(Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + "\\Data\\DataFiles\\UserCredentials.json"), Encoding.UTF8);
+				HelperClass helper = new HelperClass();
+				helper.ReadJsonData(FilePath);
 				// Initializing objects of the pages required for accessing the interoberability project
 				homePage2 = new HomePage2(Driver);
 				projectsPage = new InteroperabilityProjectsPage(Driver);
 
 				//Logging in
 				homePage.ClickSignInButton();
-				loginPage.Login(sharedData.superUserUserName, sharedData.superUserPassword);
+				loginPage.Login(helper.UserName, helper.Password);
 				test.Log(Status.Info, "Logged in sucessfully");
 				
 				// Impersonating the health system
@@ -85,8 +91,6 @@ namespace DM_AP_POC.TCs
 				
 				// Setting this flags with true to let all subsequent TCs know that the alignment tab is already opened
 				isSetupCompleted = true;
-						
-			
 		}		
 		#endregion
 
